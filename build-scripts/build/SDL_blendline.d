@@ -1,0 +1,22 @@
+build/SDL_blendline.lo: \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/src/render/software/SDL_blendline.c \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/src/render/software/../../SDL_internal.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/src/render/software/../../dynapi/SDL_dynapi.h \
+  include/SDL_config.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/SDL_platform.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/begin_code.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/close_code.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/src/render/software/SDL_draw.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/src/render/software/../../video/SDL_blit.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/SDL_cpuinfo.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/SDL_stdinc.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/SDL_config.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/SDL_endian.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/SDL_surface.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/SDL_pixels.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/SDL_rect.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/SDL_error.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/SDL_rwops.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/SDL_blendmode.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/src/render/software/SDL_blendline.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/src/render/software/SDL_blendpoint.h

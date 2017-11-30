@@ -1,0 +1,27 @@
+build/SDL_coreaudio.lo: \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/src/audio/coreaudio/SDL_coreaudio.m \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/src/audio/coreaudio/../../SDL_internal.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/src/audio/coreaudio/../../dynapi/SDL_dynapi.h \
+  include/SDL_config.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/SDL_platform.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/begin_code.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/close_code.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/SDL_audio.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/SDL_stdinc.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/SDL_config.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/SDL_error.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/SDL_endian.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/SDL_mutex.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/SDL_thread.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/SDL_atomic.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/SDL_rwops.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/SDL_hints.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/src/audio/coreaudio/../SDL_audio_c.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/src/audio/coreaudio/../SDL_sysaudio.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/src/audio/coreaudio/../../SDL_dataqueue.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/src/audio/coreaudio/SDL_coreaudio.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/include/SDL_assert.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/src/audio/coreaudio/../../thread/SDL_systhread.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/src/audio/coreaudio/../../thread/SDL_thread_c.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/src/audio/coreaudio/../../thread/pthread/SDL_systhread_c.h \
+  /Users/huangjunren/Downloads/SDL2-2.0.7/src/audio/coreaudio/../../thread/../SDL_error_c.h
