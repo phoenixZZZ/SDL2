@@ -19,6 +19,7 @@ void packet_queue_init(PacketQueue *q) {
     memset(q, 0, sizeof(PacketQueue));
     q->mutex = SDL_CreateMutex();
     q->cond = SDL_CreateCond();
+    q->isInit = 1;
 }
 
 int packet_queue_put(PacketQueue *q, AVPacket *pkt) {
@@ -136,7 +137,10 @@ double get_video_clock(VideoState *is) {
 }
 
 double get_external_clock(VideoState *is) {
-    return av_gettime() / 1000000.0;
+//    return av_gettime() / 1000000.0;
+    int64_t ti;
+    ti = av_gettime();
+    return is->external_clock + ((ti - is->external_clock_time) * 1000000.0);
 }
 
 double get_master_clock(VideoState *is) {
@@ -156,7 +160,7 @@ int synchronize_audio(VideoState *is, short *samples, int samples_size, double p
     
     n = 2 * is->audio_st->codec->channels;
     
-    if (is->av_sync_type != AV_SYNC_AUDIO_MASTER) {
+    if (is->av_sync_type != AV_SYNC_VIDEO_MASTER) {
         
         double diff, avg_diff;
         int wanted_size, min_size, max_size;
@@ -572,6 +576,7 @@ void video_display(VideoState *is) {
 void video_refresh_timer(void * userdata) {
     VideoState * is = global_video_state;
     VideoPicture * vp;
+    bool isTrue = false;
     double actual_delay, delay, sync_threshold, ref_clock, diff;
     
     SDL_LockMutex(is->audio_mutex);
@@ -586,7 +591,14 @@ void video_refresh_timer(void * userdata) {
     }
     SDL_UnlockMutex(is->audio_mutex);
     
-    if (is->video_st && is->audio_st) {
+    if (is->av_sync_type == AV_SYNC_AUDIO_MASTER) {
+        isTrue = (is->video_st && is->audio_st) ? true : false;
+    }else{
+        isTrue = (is->video_st) ? true : false;
+    }
+    
+//    if (is->video_st && is->audio_st) {
+    if (isTrue) {
         if (is->pictq_size == 0) {
             SDL_LockMutex(is->audio_mutex);
             while (is->quit) {
@@ -632,8 +644,7 @@ void video_refresh_timer(void * userdata) {
                     
                     /* Skip or repeat the frame. Take delay into account
                      FFPlay still doesn't "know if this is the best guess." */
-                    sync_threshold =
-                    (delay > AV_SYNC_THRESHOLD) ? delay : AV_SYNC_THRESHOLD;
+                    sync_threshold = (delay > AV_SYNC_THRESHOLD) ? delay : AV_SYNC_THRESHOLD;
                     if (fabs(diff) < AV_NOSYNC_THRESHOLD) {
                         if (diff <= -sync_threshold) {
                             delay = 0;
@@ -931,6 +942,7 @@ void packet_queue_destroy(PacketQueue *q) {
     packet_queue_flush(q);
     SDL_DestroyMutex(q->mutex);
     SDL_DestroyCond(q->cond);
+    q->isInit = -1;
 }
 
 void packet_queue_abort(PacketQueue *q) {
@@ -1030,15 +1042,17 @@ void ffmpeg_close(VideoState *is) {
     is->video_tid = NULL;
     NSLog(@"close video thread\n");
     
-    NSLog(@"===sdl quit SDL_CloseAudio begin");
-    AVPacket pktAudio;
-    uint8_t data[1024] = {0};
-    av_init_packet(&pktAudio);
-    pktAudio.data = data;
-    pktAudio.size = 1024;
-    packet_queue_put(&is->audioq, &pktAudio);
-    SDL_CloseAudio();
-    NSLog(@"===sdl quit SDL_CloseAudio end");
+    if (is->audioq.isInit == 1) {
+        NSLog(@"===sdl quit SDL_CloseAudio begin");
+        AVPacket pktAudio;
+        uint8_t data[1024] = {0};
+        av_init_packet(&pktAudio);
+        pktAudio.data = data;
+        pktAudio.size = 1024;
+        packet_queue_put(&is->audioq, &pktAudio);
+        SDL_CloseAudio();
+        NSLog(@"===sdl quit SDL_CloseAudio end");
+    }
     
     //destroy_avQueue(is);
     if (is->audioStream >= 0) {
@@ -1055,10 +1069,10 @@ void ffmpeg_close(VideoState *is) {
     avformat_close_input(&is->ic);
     sws_freeContext(is->sws_ctx);
     
-    packet_queue_abort(&is->videoq);
-    packet_queue_abort(&is->audioq);
-    packet_queue_destroy(&is->videoq);
-    packet_queue_destroy(&is->audioq);
+    if (is->videoq.isInit == 1) packet_queue_abort(&is->videoq);
+    if (is->audioq.isInit == 1) packet_queue_abort(&is->audioq);
+    if (is->videoq.isInit == 1) packet_queue_destroy(&is->videoq);
+    if (is->audioq.isInit == 1) packet_queue_destroy(&is->audioq);
     NSLog(@"===videoq and audioq has destroyed\n");
 }
 
@@ -1146,6 +1160,13 @@ int ffmpeg_open(const char *file_path) {
         if (is->ic->streams[i]->codec->codec_type == AVMEDIA_TYPE_AUDIO && audio_index < 0) {
             audio_index = i;
         }
+    }
+    
+    if (is->ic->nb_streams == 1) {
+        is->av_sync_type = AV_SYNC_EXTERNAL_MASTER;
+    }
+    else{
+        is->av_sync_type = AV_SYNC_AUDIO_MASTER;
     }
     
     is->videoStream = video_index;
@@ -1260,7 +1281,7 @@ int sdl_open(VideoState *is, int isInThread) {
         exit(1);
     }
     
-    is->av_sync_type = DEFAULT_AV_SYNC_TYPE;
+    //is->av_sync_type = DEFAULT_AV_SYNC_TYPE;
     
     // create the SDL condition variable(条件变量)
     if (!(is->continue_read_thread = SDL_CreateCond())) {
@@ -1636,8 +1657,8 @@ void stream_close() {
 int main(int argc, char *argv[]) {
 //    ffplayerSeekPos *obj = [ffplayerSeekPos init];
 //    [obj.delegate transSeekPos:1];
-    //NSString *documentsDirectory = [NSString stringWithFormat:@"%@/Documents/20171120113508.flv", NSHomeDirectory()];
-    NSString *documentsDirectory = [NSString stringWithFormat:@"http://leyu-dev-livestorage.b0.upaiyun.com/leyulive.pull.dev.iemylife.com/leyu/0091e94cd8254dd7af7f2b347d91b8fa/recorder20171115100710.mp4"];
+    NSString *documentsDirectory = [NSString stringWithFormat:@"%@/Documents/20170425103523.flv", NSHomeDirectory()];
+//    NSString *documentsDirectory = [NSString stringWithFormat:@"http://leyu-dev-livestorage.b0.upaiyun.com/leyulive.pull.dev.iemylife.com/leyu/0091e94cd8254dd7af7f2b347d91b8fa/recorder20171115100710.mp4"];
     stream_play([documentsDirectory UTF8String]);
     return 0;
 }
